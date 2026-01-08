@@ -1,280 +1,128 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Sesiones Fotográficas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#2196f3" />
-  <link rel="manifest" href="manifest.json" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FOTOYA! Registro de Sesiones</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff9800">
   <style>
-    body { font-family: Arial, sans-serif; margin: 16px; }
-    h1 { margin-bottom: 8px; }
-    .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
-    #frame { position: relative; width: 360px; max-width: 100%; }
-    video, canvas { width: 100%; border: 1px solid #ccc; border-radius: 6px; }
-    #guide { position: absolute; left: 8px; top: 8px; right: 8px; bottom: 8px;
-             border: 2px dashed #00aaff; border-radius: 6px; pointer-events:none; }
-    .controls { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
-    input, select, button { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
-    input { width: 280px; max-width: 100%; }
-    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    .badge { display:inline-block; padding:2px 6px; border-radius:4px; font-size:12px; margin-left:6px; }
-    .ok { background:#e6f7e6; color:#2e7d32; }
-    .warn { background:#fff4e5; color:#ad6800; }
-    .danger { background:#fdecea; color:#b71c1c; }
-    .small { font-size: 12px; color: #666; }
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: #e0f7fa;
+      color: #0277bd;
+    }
+    header {
+      background: #ff9800;
+      color: white;
+      padding: 16px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+    }
+    label {
+      font-weight: bold;
+    }
+    input {
+      padding: 14px;
+      font-size: 18px;
+      border: 2px solid #0277bd;
+      border-radius: 8px;
+    }
+    button {
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #guardar {
+      background: #ff9800;
+      color: white;
+    }
+    #exportar {
+      background: #0277bd;
+      color: white;
+      margin: 20px auto;
+      display: block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      font-size: 16px;
+    }
+    th {
+      background: #ff9800;
+      color: white;
+    }
+    @media (max-width: 600px) {
+      input, button {
+        width: 100%;
+        font-size: 18px;
+      }
+      table, th, td {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Registro de Sesiones Fotográficas</h1>
-  <p class="small">Alineá la tarjeta dentro del marco punteado. Usa la cámara trasera.</p>
+  <header>FOTOYA! Registro de Sesiones</header>
 
-  <div class="row">
-    <div id="frame">
-      <video id="video" autoplay playsinline></video>
-      <div id="guide"></div>
-      <div class="controls">
-        <button id="btnStart">Iniciar cámara</button>
-        <button id="btnFlip">Cambiar cámara</button>
-        <button id="btnCapture">Capturar</button>
-        <select id="resSelect">
-          <option value="640x480">640x480</option>
-          <option value="1280x720" selected>1280x720</option>
-          <option value="1920x1080">1920x1080</option>
-        </select>
-      </div>
-      <canvas id="canvas" width="360" height="240"></canvas>
-      <div class="controls">
-        <button id="btnOCR">Procesar OCR</button>
-        <span id="confidenceBadge" class="badge warn">Confianza: -</span>
-      </div>
-      <pre id="rawText" class="small"></pre>
-    </div>
+  <form id="formSesion" onsubmit="return false;">
+    <label>Cliente:<br><input type="text" id="cliente" required></label>
+    <label>Foto desde:<br><input type="text" id="fotoDesde" required></label>
+    <label>Foto hasta:<br><input type="text" id="fotoHasta" required></label>
+    <label>Fotógrafo:<br><input type="text" id="fotografo" required></label>
+    <label>Fecha:<br><input type="text" id="fecha" placeholder="dd/mm/yyyy" required></label>
+    <button type="button" id="guardar">➕ Cargar tarjeta</button>
+  </form>
 
-    <div>
-      <h3>Datos de la sesión</h3>
-      <form id="formSesion" onsubmit="return false;">
-        <div><label>Cliente</label><br><input id="cliente" type="text" placeholder="Nombre del cliente" /></div>
-        <div><label>Foto desde</label><br><input id="fotoDesde" type="text" placeholder="Ej: 2132 o DSC_2132.JPG" /></div>
-        <div><label>Foto hasta</label><br><input id="fotoHasta" type="text" placeholder="Ej: 2156 o DSC_2156.JPG" /></div>
-        <div><label>Fotógrafo</label><br><input id="fotografo" type="text" placeholder="Nombre fotógrafo" /></div>
-        <div><label>Fecha (dd/mm/yyyy)</label><br><input id="fecha" type="text" placeholder="08/01/2026" /></div>
-        <div class="controls">
-          <button id="btnGuardar">Guardar sesión</button>
-          <button id="btnLimpiar">Limpiar formulario</button>
-        </div>
-      </form>
+  <h3 style="text-align:center; margin-top:30px;">Sesiones registradas</h3>
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>Cliente</th><th>FotoDesde</th><th>FotoHasta</th><th>Fotógrafo</th><th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="exportar">📤 Exportar a CSV</button>
 
-      <h3>Sesiones registradas</h3>
-      <div class="controls">
-        <button id="btnExport">Exportar CSV</button>
-        <button id="btnClearAll">Borrar todo</button>
-      </div>
-      <table id="tabla">
-        <thead>
-          <tr>
-            <th>Cliente</th><th>FotoDesde</th><th>FotoHasta</th><th>Fotógrafo</th><th>Fecha</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
-    // Estado
-    let currentStream = null;
     let registros = JSON.parse(localStorage.getItem('sesionesFoto') || '[]');
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    const resSelect = document.getElementById('resSelect');
-    const confidenceBadge = document.getElementById('confidenceBadge');
+    const tbody = document.querySelector('#tabla tbody');
 
-    // Render inicial de tabla
     function renderTabla() {
-      const tbody = document.querySelector('#tabla tbody');
       tbody.innerHTML = '';
       registros.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${escapeCSV(r.cliente)}</td>
-                        <td>${escapeCSV(r.fotoDesde)}</td>
-                        <td>${escapeCSV(r.fotoHasta)}</td>
-                        <td>${escapeCSV(r.fotografo)}</td>
-                        <td>${escapeCSV(r.fecha)}</td>`;
-        tbody.appendChild(tr);
+        const fila = document.createElement('tr');
+        fila.innerHTML = `<td>${r.cliente}</td>
+                          <td>${r.fotoDesde}</td>
+                          <td>${r.fotoHasta}</td>
+                          <td>${r.fotografo}</td>
+                          <td>${r.fecha}</td>`;
+        tbody.appendChild(fila);
       });
     }
     renderTabla();
 
-    // Utilidad CSV
-    function escapeCSV(val) {
-      if (val == null) return '';
-      const s = String(val);
-      return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
-    }
-
-    // Iniciar cámara con facingMode y resolución
-    async function startCamera(facing = 'environment') {
-      try {
-        const [w, h] = resSelect.value.split('x').map(Number);
-        const constraints = {
-          video: {
-            facingMode: { ideal: facing },
-            width: { ideal: w },
-            height: { ideal: h }
-          },
-          audio: false
-        };
-        if (currentStream) currentStream.getTracks().forEach(t => t.stop());
-        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = currentStream;
-      } catch (err) {
-        alert('No se pudo iniciar la cámara: ' + err.message);
-      }
-    }
-
-    document.getElementById('btnStart').onclick = () => startCamera('environment');
-    document.getElementById('btnFlip').onclick = () => startCamera('user');
-    resSelect.onchange = () => startCamera('environment');
-
-    // Capturar imagen al canvas
-    document.getElementById('btnCapture').onclick = () => {
-      const vw = video.videoWidth, vh = video.videoHeight;
-      if (!vw || !vh) { alert('Esperá que la cámara esté lista.'); return; }
-      // Ajuste simple: escalar a canvas manteniendo proporción
-      const scale = Math.min(canvas.width / vw, canvas.height / vh);
-      const dw = vw * scale, dh = vh * scale;
-      const dx = (canvas.width - dw) / 2, dy = (canvas.height - dh) / 2;
-      ctx.drawImage(video, 0, 0, vw, vh, dx, dy, dw, dh);
-    };
-
-    // Preprocesado (grises + contraste)
-    function preprocessLine(cnv) {
-      const c = cnv.getContext('2d');
-      const img = c.getImageData(0, 0, cnv.width, cnv.height);
-      const d = img.data;
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i], g = d[i+1], b = d[i+2];
-        const gray = 0.2126*r + 0.7152*g + 0.0722*b;
-        const contrasted = Math.max(0, Math.min(255, (gray - 128) * 1.4 + 128));
-        d[i] = d[i+1] = d[i+2] = contrasted;
-      }
-      c.putImageData(img, 0, 0);
-      return cnv;
-    }
-
-    // Recortar línea por Y
-    function cropLine(y, h) {
-      const temp = document.createElement('canvas');
-      temp.width = canvas.width;
-      temp.height = h;
-      const tctx = temp.getContext('2d');
-      tctx.drawImage(canvas, 0, y, canvas.width, h, 0, 0, temp.width, h);
-      return preprocessLine(temp);
-    }
-
-    // OCR por línea con whitelists y PSM 7
-    async function ocrLine(cnv, whitelist) {
-      const res = await Tesseract.recognize(cnv, 'spa', { psm: 7, tessedit_char_whitelist: whitelist });
-      return res;
-    }
-
-    // Procesar OCR total con layout de 5 líneas
-    document.getElementById('btnOCR').onclick = async () => {
-      confidenceBadge.textContent = 'Confianza: ...';
-      confidenceBadge.className = 'badge warn';
-
-      const H = canvas.height;
-      const lineH = Math.floor(H / 5);
-      const lines = [
-        cropLine(0 * lineH, lineH), // CLIENTE | ...
-        cropLine(1 * lineH, lineH), // FOTO DESDE | ...
-        cropLine(2 * lineH, lineH), // FOTO HASTA | ...
-        cropLine(3 * lineH, lineH), // FOTOGRAFO | ...
-        cropLine(4 * lineH, lineH)  // FECHA | ...
-      ];
-
-      try {
-        const [rCliente, rDesde, rHasta, rFotografo, rFecha] = await Promise.all([
-          ocrLine(lines[0], undefined),
-          ocrLine(lines[1], '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ._- /'),
-          ocrLine(lines[2], '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ._- /'),
-          ocrLine(lines[3], undefined),
-          ocrLine(lines[4], '0123456789/')
-        ]);
-
-        // Texto crudo para depurar
-        const raw = [
-          rCliente.data.text.trim(),
-          rDesde.data.text.trim(),
-          rHasta.data.text.trim(),
-          rFotografo.data.text.trim(),
-          rFecha.data.text.trim()
-        ].join('\n');
-        document.getElementById('rawText').textContent = raw;
-
-        // Confianza promedio
-        const conf = avg([
-          rCliente.data.confidence,
-          rDesde.data.confidence,
-          rHasta.data.confidence,
-          rFotografo.data.confidence,
-          rFecha.data.confidence
-        ]);
-
-        confidenceBadge.textContent = 'Confianza: ' + conf.toFixed(1) + '%';
-        confidenceBadge.className = 'badge ' + (conf >= 85 ? 'ok' : conf >= 60 ? 'warn' : 'danger');
-
-        // Extracción robusta
-        const cliente   = extractField(rCliente.data.text, /CLIENTE\s*\|\s*(.+)/i);
-        const fotoDesde = extractField(rDesde.data.text, /FOTO\s+DESDE\s*\|\s*(.+)/i);
-        const fotoHasta = extractField(rHasta.data.text, /FOTO\s+HASTA\s*\|\s*(.+)/i);
-        const fotografo = extractField(rFotografo.data.text, /FOTOGRAFO\s*\|\s*(.+)/i);
-        let fecha       = extractField(rFecha.data.text, /FECHA\s*\|\s*(.+)/i);
-
-        // Si no encuentra por regex, toma todo el texto de la línea
-        const cleanCliente   = (cliente || rCliente.data.text).trim().replace(/^CLIENTE\s*\|\s*/i,'').toUpperCase();
-        const cleanDesde     = (fotoDesde || rDesde.data.text).trim().replace(/^FOTO\s+DESDE\s*\|\s*/i,'').toUpperCase();
-        const cleanHasta     = (fotoHasta || rHasta.data.text).trim().replace(/^FOTO\s+HASTA\s*\|\s*/i,'').toUpperCase();
-        const cleanFotografo = (fotografo || rFotografo.data.text).trim().replace(/^FOTOGRAFO\s*\|\s*/i,'').toUpperCase();
-        fecha = (fecha || rFecha.data.text).trim().replace(/^FECHA\s*\|\s*/i,'');
-        fecha = normalizeDate(fecha);
-
-        // Rellenar formulario
-        document.getElementById('cliente').value = cleanCliente;
-        document.getElementById('fotoDesde').value = cleanDesde;
-        document.getElementById('fotoHasta').value = cleanHasta;
-        document.getElementById('fotografo').value = cleanFotografo;
-        document.getElementById('fecha').value = fecha;
-
-      } catch (err) {
-        alert('Error de OCR: ' + err.message);
-      }
-    };
-
-    function extractField(text, regex) {
-      const m = text.match(regex);
-      return m?.[1] || '';
-    }
-
-    function avg(arr) {
-      return arr.reduce((a,b)=>a+b,0)/arr.length;
-    }
-
-    function normalizeDate(f) {
-      const m = f.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-      if (!m) return f;
-      const d = m[1].padStart(2,'0');
-      const mm = m[2].padStart(2,'0');
-      const y = m[3].length === 2 ? ('20' + m[3]) : m[3];
-      return `${d}/${mm}/${y}`;
-    }
-
-    // Guardar sesión
-    document.getElementById('btnGuardar').onclick = () => {
+    document.getElementById('guardar').onclick = () => {
       const sesion = {
         cliente: document.getElementById('cliente').value.trim(),
         fotoDesde: document.getElementById('fotoDesde').value.trim(),
@@ -282,27 +130,21 @@
         fotografo: document.getElementById('fotografo').value.trim(),
         fecha: document.getElementById('fecha').value.trim()
       };
-      // Validación mínima
-      if (!sesion.cliente || !sesion.fotografo || !sesion.fecha) {
-        alert('Completá Cliente, Fotógrafo y Fecha.');
+      if (!sesion.cliente || !sesion.fotoDesde || !sesion.fotoHasta || !sesion.fotografo || !sesion.fecha) {
+        alert("Completa todos los campos");
         return;
       }
       registros.push(sesion);
       localStorage.setItem('sesionesFoto', JSON.stringify(registros));
       renderTabla();
-      alert('Sesión guardada.');
+      document.getElementById('formSesion').reset();
+      document.getElementById('cliente').focus();
     };
 
-    // Limpiar formulario
-    document.getElementById('btnLimpiar').onclick = () => {
-      ['cliente','fotoDesde','fotoHasta','fotografo','fecha'].forEach(id => document.getElementById(id).value = '');
-    };
-
-    // Exportar CSV
-    document.getElementById('btnExport').onclick = () => {
+    document.getElementById('exportar').onclick = () => {
       const encabezados = "Cliente,FotoDesde,FotoHasta,Fotografo,Fecha\n";
       const filas = registros.map(r =>
-        `${escapeCSV(r.cliente)},${escapeCSV(r.fotoDesde)},${escapeCSV(r.fotoHasta)},${escapeCSV(r.fotografo)},${escapeCSV(r.fecha)}`
+        `${r.cliente},${r.fotoDesde},${r.fotoHasta},${r.fotografo},${r.fecha}`
       ).join("\n");
       const blob = new Blob([encabezados + filas], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
@@ -312,19 +154,8 @@
       a.click();
     };
 
-    // Borrar todo
-    document.getElementById('btnClearAll').onclick = () => {
-      if (!confirm('¿Borrar todos los registros?')) return;
-      registros = [];
-      localStorage.removeItem('sesionesFoto');
-      renderTabla();
-    };
-
-    // Registrar Service Worker
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker registrado'))
-        .catch(err => console.error('Error SW:', err));
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js");
     }
   </script>
 </body>
