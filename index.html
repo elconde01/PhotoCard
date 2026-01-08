@@ -56,7 +56,8 @@
     const registros = [];
 
     // Activar cámara
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } }
+ })
       .then(stream => video.srcObject = stream);
 
     // Capturar imagen
@@ -119,3 +120,4 @@
 </body>
 
 </html>
+
