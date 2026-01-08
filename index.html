@@ -2,11 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Sesiones Fotográficas</title>
+  <title>Sesiones Fotográficas</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2196f3">
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     video, canvas { border: 1px solid #ccc; margin: 10px 0; }
-    input { margin: 5px; padding: 5px; }
+    input { margin: 5px; padding: 5px; width: 300px; }
     table { border-collapse: collapse; margin-top: 20px; width: 100%; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     button { margin: 5px; padding: 8px 12px; }
@@ -15,16 +17,13 @@
 <body>
   <h1>Registro de Sesiones Fotográficas</h1>
 
-  <!-- Cámara -->
   <video id="video" width="320" height="240" autoplay></video>
-  <button id="capturar">Capturar tarjeta</button>
+  <button id="capturar">📸 Capturar tarjeta</button>
   <canvas id="canvas" width="320" height="240"></canvas>
 
-  <!-- OCR -->
-  <button id="procesar">Procesar OCR</button>
+  <button id="procesar">🔍 Procesar OCR</button>
   <div id="ocrTexto"></div>
 
-  <!-- Formulario editable -->
   <h3>Datos de la sesión</h3>
   <form id="formSesion">
     Cliente: <input type="text" id="cliente"><br>
@@ -32,10 +31,9 @@
     Foto hasta: <input type="text" id="fotoHasta"><br>
     Fotógrafo: <input type="text" id="fotografo"><br>
     Fecha: <input type="text" id="fecha" placeholder="dd/mm/yyyy"><br>
-    <button type="button" id="guardar">Guardar sesión</button>
+    <button type="button" id="guardar">💾 Guardar sesión</button>
   </form>
 
-  <!-- Tabla de registros -->
   <h3>Sesiones registradas</h3>
   <table id="tabla">
     <thead>
@@ -45,9 +43,8 @@
     </thead>
     <tbody></tbody>
   </table>
-  <button id="exportar">Exportar a CSV</button>
+  <button id="exportar">📤 Exportar a CSV</button>
 
-  <!-- Librería OCR -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
   <script>
     const video = document.getElementById('video');
@@ -55,10 +52,10 @@
     const ctx = canvas.getContext('2d');
     const registros = [];
 
-    // Activar cámara
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: "environment" } }
- })
-      .then(stream => video.srcObject = stream);
+    // Activar cámara trasera
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    }).then(stream => video.srcObject = stream);
 
     // Capturar imagen
     document.getElementById('capturar').onclick = () => {
@@ -71,14 +68,12 @@
         .then(({ data: { text } }) => {
           document.getElementById('ocrTexto').innerText = text;
 
-          // Extraer con regex
-          const cliente = text.match(/Cliente:\s*(.*)/i)?.[1] || "";
-          const fotoDesde = text.match(/Foto desde:\s*(.*)/i)?.[1] || "";
-          const fotoHasta = text.match(/Foto hasta:\s*(.*)/i)?.[1] || "";
-          const fotografo = text.match(/Fotógrafo:\s*(.*)/i)?.[1] || "";
-          const fecha = text.match(/Fecha:\s*(.*)/i)?.[1] || "";
+          const cliente = text.match(/CLIENTE\s*\|\s*(.*)/i)?.[1] || "";
+          const fotoDesde = text.match(/FOTO DESDE\s*\|\s*(.*)/i)?.[1] || "";
+          const fotoHasta = text.match(/FOTO HASTA\s*\|\s*(.*)/i)?.[1] || "";
+          const fotografo = text.match(/FOTOGRAFO\s*\|\s*(.*)/i)?.[1] || "";
+          const fecha = text.match(/FECHA\s*\|\s*(.*)/i)?.[1] || "";
 
-          // Rellenar formulario
           document.getElementById('cliente').value = cliente;
           document.getElementById('fotoDesde').value = fotoDesde;
           document.getElementById('fotoHasta').value = fotoHasta;
@@ -116,8 +111,13 @@
       a.download = "sesiones.csv";
       a.click();
     };
+
+    // Registrar Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js")
+        .then(() => console.log("Service Worker registrado"))
+        .catch(err => console.error("Error al registrar SW:", err));
+    }
   </script>
 </body>
-
 </html>
-
