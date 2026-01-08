@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Sesiones Fotográficas</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    video, canvas { border: 1px solid #ccc; margin: 10px 0; }
+    input { margin: 5px; padding: 5px; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    button { margin: 5px; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+  <h1>Registro de Sesiones Fotográficas</h1>
+
+  <!-- Cámara -->
+  <video id="video" width="320" height="240" autoplay></video>
+  <button id="capturar">Capturar tarjeta</button>
+  <canvas id="canvas" width="320" height="240"></canvas>
+
+  <!-- OCR -->
+  <button id="procesar">Procesar OCR</button>
+  <div id="ocrTexto"></div>
+
+  <!-- Formulario editable -->
+  <h3>Datos de la sesión</h3>
+  <form id="formSesion">
+    Cliente: <input type="text" id="cliente"><br>
+    Foto desde: <input type="text" id="fotoDesde"><br>
+    Foto hasta: <input type="text" id="fotoHasta"><br>
+    Fotógrafo: <input type="text" id="fotografo"><br>
+    Fecha: <input type="text" id="fecha" placeholder="dd/mm/yyyy"><br>
+    <button type="button" id="guardar">Guardar sesión</button>
+  </form>
+
+  <!-- Tabla de registros -->
+  <h3>Sesiones registradas</h3>
+  <table id="tabla">
+    <thead>
+      <tr>
+        <th>Cliente</th><th>FotoDesde</th><th>FotoHasta</th><th>Fotógrafo</th><th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <button id="exportar">Exportar a CSV</button>
+
+  <!-- Librería OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const registros = [];
+
+    // Activar cámara
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream);
+
+    // Capturar imagen
+    document.getElementById('capturar').onclick = () => {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    };
+
+    // Procesar OCR
+    document.getElementById('procesar').onclick = () => {
+      Tesseract.recognize(canvas, 'spa')
+        .then(({ data: { text } }) => {
+          document.getElementById('ocrTexto').innerText = text;
+
+          // Extraer con regex
+          const cliente = text.match(/Cliente:\s*(.*)/i)?.[1] || "";
+          const fotoDesde = text.match(/Foto desde:\s*(.*)/i)?.[1] || "";
+          const fotoHasta = text.match(/Foto hasta:\s*(.*)/i)?.[1] || "";
+          const fotografo = text.match(/Fotógrafo:\s*(.*)/i)?.[1] || "";
+          const fecha = text.match(/Fecha:\s*(.*)/i)?.[1] || "";
+
+          // Rellenar formulario
+          document.getElementById('cliente').value = cliente;
+          document.getElementById('fotoDesde').value = fotoDesde;
+          document.getElementById('fotoHasta').value = fotoHasta;
+          document.getElementById('fotografo').value = fotografo;
+          document.getElementById('fecha').value = fecha;
+        });
+    };
+
+    // Guardar sesión
+    document.getElementById('guardar').onclick = () => {
+      const sesion = {
+        cliente: document.getElementById('cliente').value,
+        fotoDesde: document.getElementById('fotoDesde').value,
+        fotoHasta: document.getElementById('fotoHasta').value,
+        fotografo: document.getElementById('fotografo').value,
+        fecha: document.getElementById('fecha').value
+      };
+      registros.push(sesion);
+
+      const fila = document.createElement('tr');
+      fila.innerHTML = `<td>${sesion.cliente}</td><td>${sesion.fotoDesde}</td><td>${sesion.fotoHasta}</td><td>${sesion.fotografo}</td><td>${sesion.fecha}</td>`;
+      document.querySelector('#tabla tbody').appendChild(fila);
+    };
+
+    // Exportar CSV
+    document.getElementById('exportar').onclick = () => {
+      const encabezados = "Cliente,FotoDesde,FotoHasta,Fotografo,Fecha\n";
+      const filas = registros.map(r =>
+        `${r.cliente},${r.fotoDesde},${r.fotoHasta},${r.fotografo},${r.fecha}`
+      ).join("\n");
+      const blob = new Blob([encabezados + filas], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "sesiones.csv";
+      a.click();
+    };
+  </script>
+</body>
+</html>
