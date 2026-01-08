@@ -9,7 +9,7 @@
   <style>
     body {
       margin: 0;
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
       background: #e0f7fa;
       color: #0277bd;
     }
@@ -89,7 +89,7 @@
     <label>Foto desde:<br><input type="text" id="fotoDesde" required></label>
     <label>Foto hasta:<br><input type="text" id="fotoHasta" required></label>
     <label>Fotógrafo:<br><input type="text" id="fotografo" required></label>
-    <label>Fecha:<br><input type="text" id="fecha" placeholder="dd/mm/yyyy" required></label>
+    <label>Fecha:<br><input type="text" id="fecha" required></label>
     <button type="button" id="guardar">➕ Cargar tarjeta</button>
   </form>
 
@@ -120,6 +120,17 @@
         tbody.appendChild(fila);
       });
     }
+
+    // Fecha actual por defecto
+    function fechaHoy() {
+      const hoy = new Date();
+      const d = String(hoy.getDate()).padStart(2, '0');
+      const m = String(hoy.getMonth() + 1).padStart(2, '0');
+      const y = hoy.getFullYear();
+      return `${d}/${m}/${y}`;
+    }
+
+    document.getElementById('fecha').value = fechaHoy();
     renderTabla();
 
     document.getElementById('guardar').onclick = () => {
@@ -137,7 +148,11 @@
       registros.push(sesion);
       localStorage.setItem('sesionesFoto', JSON.stringify(registros));
       renderTabla();
-      document.getElementById('formSesion').reset();
+
+      // Limpiar campos excepto Fotógrafo y Fecha
+      document.getElementById('cliente').value = '';
+      document.getElementById('fotoDesde').value = '';
+      document.getElementById('fotoHasta').value = '';
       document.getElementById('cliente').focus();
     };
 
