@@ -29,9 +29,7 @@
       max-width: 400px;
       margin: auto;
     }
-    label {
-      font-weight: bold;
-    }
+    label { font-weight: bold; }
     input {
       padding: 14px;
       font-size: 18px;
@@ -46,16 +44,9 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    #guardar {
-      background: #ff9800;
-      color: white;
-    }
-    #exportar {
-      background: #0277bd;
-      color: white;
-      margin: 20px auto;
-      display: block;
-    }
+    #guardar { background: #ff9800; color: white; }
+    #exportar { background: #0277bd; color: white; margin: 20px auto; display: block; }
+    #limpiarLista { background: #d32f2f; color: white; margin: 20px auto; display: block; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -66,18 +57,10 @@
       padding: 12px;
       font-size: 16px;
     }
-    th {
-      background: #ff9800;
-      color: white;
-    }
+    th { background: #ff9800; color: white; }
     @media (max-width: 600px) {
-      input, button {
-        width: 100%;
-        font-size: 18px;
-      }
-      table, th, td {
-        font-size: 14px;
-      }
+      input, button { width: 100%; font-size: 18px; }
+      table, th, td { font-size: 14px; }
     }
   </style>
 </head>
@@ -103,6 +86,7 @@
     <tbody></tbody>
   </table>
   <button id="exportar">📤 Exportar a CSV</button>
+  <button id="limpiarLista">🗑️ Limpiar lista</button>
 
   <script>
     let registros = JSON.parse(localStorage.getItem('sesionesFoto') || '[]');
@@ -129,8 +113,8 @@
       const y = hoy.getFullYear();
       return `${d}/${m}/${y}`;
     }
-
     document.getElementById('fecha').value = fechaHoy();
+
     renderTabla();
 
     document.getElementById('guardar').onclick = () => {
@@ -149,7 +133,7 @@
       localStorage.setItem('sesionesFoto', JSON.stringify(registros));
       renderTabla();
 
-      // Limpiar campos excepto Fotógrafo y Fecha
+      // Limpiar solo Cliente, Foto desde y Foto hasta
       document.getElementById('cliente').value = '';
       document.getElementById('fotoDesde').value = '';
       document.getElementById('fotoHasta').value = '';
@@ -167,6 +151,15 @@
       a.href = url;
       a.download = "sesiones.csv";
       a.click();
+    };
+
+    // Botón para limpiar lista
+    document.getElementById('limpiarLista').onclick = () => {
+      if (confirm("¿Seguro que quieres borrar toda la lista?")) {
+        registros = [];
+        localStorage.removeItem('sesionesFoto');
+        renderTabla();
+      }
     };
 
     if ("serviceWorker" in navigator) {
