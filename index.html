@@ -168,22 +168,33 @@
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js");
     }
-    // Configuración de tu proyecto (copiala desde Firebase Console)
-  const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_DOMINIO.firebaseapp.com",
-    databaseURL: "https://TU_DOMINIO-default-rtdb.firebaseio.com",
-    projectId: "TU_DOMINIO",
-    storageBucket: "TU_DOMINIO.appspot.com",
-    messagingSenderId: "XXXXXXXXXXXX",
-    appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXX"
-  };
-  // Inicializar Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  
+      <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyAkbi7ewikfe_ujpdD6daHaMfxhs7OEVxk",
+        authDomain: "fotoya-sesiones.firebaseapp.com",
+        databaseURL: "https://fotoya-sesiones-default-rtdb.firebaseio.com",
+        projectId: "fotoya-sesiones",
+        storageBucket: "fotoya-sesiones.firebasestorage.app",
+        messagingSenderId: "894680059486",
+        appId: "1:894680059486:web:c1bab9df0ea12f8de4eecf",
+        measurementId: "G-4QV1DW9C9J"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
   </script>
 </body>
 </html>
+
 
 
