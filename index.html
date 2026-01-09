@@ -168,7 +168,22 @@
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js");
     }
+    // Configuración de tu proyecto (copiala desde Firebase Console)
+  const firebaseConfig = {
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_DOMINIO.firebaseapp.com",
+    databaseURL: "https://TU_DOMINIO-default-rtdb.firebaseio.com",
+    projectId: "TU_DOMINIO",
+    storageBucket: "TU_DOMINIO.appspot.com",
+    messagingSenderId: "XXXXXXXXXXXX",
+    appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXX"
+  };
+  // Inicializar Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  
   </script>
 </body>
 </html>
+
 
