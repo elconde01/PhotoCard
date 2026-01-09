@@ -4,102 +4,33 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FotoYa! Registro de Sesiones</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#ff9800" />
   <style>
-    :root {
-      --celeste: #e0f7fa;
-      --azul: #0277bd;
-      --naranja: #ff9800;
-      --rojo: #d32f2f;
-      --blanco: #ffffff;
-    }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--celeste);
-      color: var(--azul);
-    }
-    header {
-      background: var(--naranja);
-      color: var(--blanco);
-      padding: 16px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 20px;
-      max-width: 480px;
-      margin: 20px auto;
-      background: var(--blanco);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    label { font-weight: bold; }
-    input {
-      padding: 14px;
-      font-size: 18px;
-      border: 2px solid var(--azul);
-      border-radius: 8px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-    button {
-      padding: 14px 18px;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    #guardar { background: var(--naranja); color: var(--blanco); }
-    #exportar { background: var(--azul); color: var(--blanco); margin: 20px auto; display: block; }
-    #limpiarLista { background: var(--rojo); color: var(--blanco); margin: 20px auto; display: block; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border-bottom: 1px solid #ddd;
-      padding: 12px;
-      font-size: 16px;
-      text-align: left;
-    }
-    th { background: var(--naranja); color: var(--blanco); }
-    @media (max-width: 600px) {
-      input, button { width: 100%; font-size: 18px; }
-      th, td { font-size: 14px; }
-    }
+    body { font-family: Arial, sans-serif; background:#e0f7fa; margin:0; }
+    header { background:#ff9800; color:#fff; padding:16px; text-align:center; font-size:24px; font-weight:bold; }
+    form { max-width:400px; margin:20px auto; background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); display:flex; flex-direction:column; gap:12px; }
+    input { padding:12px; font-size:16px; border:2px solid #0277bd; border-radius:8px; }
+    button { padding:14px; font-size:18px; font-weight:bold; border:none; border-radius:8px; cursor:pointer; }
+    #guardar { background:#ff9800; color:#fff; }
+    #exportar { background:#0277bd; color:#fff; margin:20px auto; display:block; }
+    #limpiarLista { background:#d32f2f; color:#fff; margin:20px auto; display:block; }
+    table { width:100%; border-collapse:collapse; margin-top:20px; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+    th { background:#ff9800; color:#fff; }
   </style>
 </head>
 <body>
   <header>FotoYa! Registro de Sesiones</header>
 
   <form id="formSesion" onsubmit="return false;">
-    <label>Cliente
-      <input type="text" id="cliente" required />
-    </label>
-    <label>Foto desde
-      <input type="text" id="fotoDesde" required />
-    </label>
-    <label>Foto hasta
-      <input type="text" id="fotoHasta" required />
-    </label>
-    <label>Fotógrafo
-      <input type="text" id="fotografo" required />
-    </label>
-    <label>Fecha
-      <input type="text" id="fecha" required />
-    </label>
+    <label>Cliente <input type="text" id="cliente" required></label>
+    <label>Foto desde <input type="text" id="fotoDesde" required></label>
+    <label>Foto hasta <input type="text" id="fotoHasta" required></label>
+    <label>Fotógrafo <input type="text" id="fotografo" required></label>
+    <label>Fecha <input type="text" id="fecha" required></label>
     <button type="button" id="guardar">➕ Cargar tarjeta</button>
   </form>
 
-  <h3 style="text-align:center; margin-top:30px;">Sesiones registradas</h3>
+  <h3 style="text-align:center;">Sesiones registradas</h3>
   <table id="tabla">
     <thead>
       <tr>
@@ -111,24 +42,22 @@
   <button id="exportar">📤 Exportar a CSV</button>
   <button id="limpiarLista">🗑️ Limpiar lista</button>
 
-  <!-- Firebase SDK modular -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
 
-    // Configuración de tu proyecto (copiada de Firebase Console)
+    // ⚠️ Usa exactamente la config que te da Firebase Console
     const firebaseConfig = {
       apiKey: "AIzaSyAkbi7ewikfe_ujpdD6daHaMfxhs7OEVxk",
       authDomain: "fotoya-sesiones.firebaseapp.com",
       databaseURL: "https://fotoya-sesiones-default-rtdb.firebaseio.com",
       projectId: "fotoya-sesiones",
-      storageBucket: "fotoya-sesiones.firebasestorage.app",
+      storageBucket: "fotoya-sesiones.appspot.com",
       messagingSenderId: "894680059486",
       appId: "1:894680059486:web:c1bab9df0ea12f8de4eecf",
       measurementId: "G-4QV1DW9C9J"
     };
 
-    // Inicializar Firebase
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const sesionesRef = ref(db, "sesiones");
@@ -136,20 +65,17 @@
     // Fecha actual por defecto
     function fechaHoy() {
       const hoy = new Date();
-      const d = String(hoy.getDate()).padStart(2, '0');
-      const m = String(hoy.getMonth() + 1).padStart(2, '0');
-      const y = hoy.getFullYear();
-      return `${d}/${m}/${y}`;
+      return hoy.toLocaleDateString("es-AR");
     }
-    document.getElementById('fecha').value = fechaHoy();
+    document.getElementById("fecha").value = fechaHoy();
 
     // Render tabla en tiempo real
-    const tbody = document.querySelector('#tabla tbody');
+    const tbody = document.querySelector("#tabla tbody");
     onValue(sesionesRef, snapshot => {
-      tbody.innerHTML = '';
+      tbody.innerHTML = "";
       snapshot.forEach(child => {
         const r = child.val();
-        const fila = document.createElement('tr');
+        const fila = document.createElement("tr");
         fila.innerHTML = `<td>${r.cliente}</td>
                           <td>${r.fotoDesde}</td>
                           <td>${r.fotoHasta}</td>
@@ -160,28 +86,28 @@
     });
 
     // Guardar sesión
-    document.getElementById('guardar').onclick = () => {
+    document.getElementById("guardar").onclick = () => {
       const sesion = {
-        cliente: document.getElementById('cliente').value.trim(),
-        fotoDesde: document.getElementById('fotoDesde').value.trim(),
-        fotoHasta: document.getElementById('fotoHasta').value.trim(),
-        fotografo: document.getElementById('fotografo').value.trim(),
-        fecha: document.getElementById('fecha').value.trim()
+        cliente: document.getElementById("cliente").value.trim(),
+        fotoDesde: document.getElementById("fotoDesde").value.trim(),
+        fotoHasta: document.getElementById("fotoHasta").value.trim(),
+        fotografo: document.getElementById("fotografo").value.trim(),
+        fecha: document.getElementById("fecha").value.trim()
       };
       if (!sesion.cliente || !sesion.fotoDesde || !sesion.fotoHasta || !sesion.fotografo || !sesion.fecha) {
         alert("Completa todos los campos");
         return;
       }
-      push(sesionesRef, sesion);
+      push(sesionesRef, sesion); // 👈 esto agrega la sesión
       // Limpiar solo Cliente, Foto desde y Foto hasta
-      document.getElementById('cliente').value = '';
-      document.getElementById('fotoDesde').value = '';
-      document.getElementById('fotoHasta').value = '';
-      document.getElementById('cliente').focus();
+      document.getElementById("cliente").value = "";
+      document.getElementById("fotoDesde").value = "";
+      document.getElementById("fotoHasta").value = "";
+      document.getElementById("cliente").focus();
     };
 
     // Exportar CSV
-    document.getElementById('exportar').onclick = async () => {
+    document.getElementById("exportar").onclick = async () => {
       const snap = await new Promise(resolve => onValue(sesionesRef, resolve, { onlyOnce: true }));
       const filas = [];
       snap.forEach(child => {
@@ -198,5 +124,17 @@
     };
 
     // Limpiar lista completa
-    document.getElementById('limpiarLista').onclick = () => {
-      if (confirm("¿Seguro que querés borrar
+    document.getElementById("limpiarLista").onclick = () => {
+      if (confirm("¿Seguro que querés borrar toda la lista compartida?")) {
+        remove(sesionesRef);
+      }
+    };
+
+    function escapeCSV(val) {
+      if (val == null) return "";
+      const s = String(val);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+    }
+  </script>
+</body>
+</html>
